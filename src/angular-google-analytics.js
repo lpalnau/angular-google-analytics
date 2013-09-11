@@ -1,149 +1,250 @@
 /* global angular, console */
 
-'use strict';
-
 angular.module('angular-google-analytics', [])
     .provider('Analytics', function() {
+        'use strict';
         var created = false,
             trackRoutes = true,
             accountId,
             trackPrefix = '',
-            domainName;
+            domainName,
+            trackEcommerce = false,
+            ecommerceLoaded = false;
 
-          this._logs = [];
+        this._logs = [];
 
-          // config methods
-          this.setAccount = function(id) {
-              accountId = id;
-              return true;
-          };
-          this.trackPages = function(doTrack) {
-              trackRoutes = doTrack;
-              return true;
-          };
-          this.trackPrefix = function(prefix) {
-              trackPrefix = prefix;
-              return true;
-          };
+        // config methods
+        this.setAccount = function(id) {
+          accountId = id;
+          return true;
+        };
+        this.trackPages = function(doTrack) {
+          trackRoutes = doTrack;
+          return true;
+        };
+        this.trackPrefix = function(prefix) {
+          trackPrefix = prefix;
+          return true;
+        };
 
-          this.setDomainName = function(domain) {
-            domainName = domain;
-            return true;
-          };
+        this.setDomainName = function(domain) {
+          domainName = domain;
+          return true;
+        };
+
+        this.trackEcommerce = function(doTrack) {
+          trackEcommerce = doTrack;
+          return true;
+        };
+
 
         // public service
         this.$get = ['$document', '$rootScope', '$location', '$window', function($document, $rootScope, $location, $window) {
           // private methods
           function _createScriptTag() {
-            // inject the google analytics tag
+            //require accountId
             if (!accountId) return;
-            $window._gaq = [];
-            $window._gaq.push(['_setAccount', accountId]);
-            if (trackRoutes) $window._gaq.push(['_trackPageview']);
-            if(domainName) $window._gaq.push(['_setDomainName', domainName]);
+
+            //initialize the window object __gaTracker
+            $window.GoogleAnalyticsObject = '__gaTracker';
+            if(angular.isUndefined($window.__gaTracker)) {
+                $window.__gaTracker = function() {
+                    if(angular.isUndefined($window.__gaTracker.q)) {
+                        $window.__gaTracker.q = [];
+                    }
+                    $window.__gaTracker.q.push(arguments);
+                };
+                $window.__gaTracker.l=1*new Date();
+            }
+            var opts = {};
+            if(domainName) {
+                opts.cookieDomain = domainName;
+            }
+
+            $window.__gaTracker('create', accountId);
+
+            if (trackEcommerce && !ecommerceLoaded) {
+                $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
+                ecommerceLoaded = true;
+            }
+
+            if (trackRoutes) $window.__gaTracker('send','pageview');
+
+            // inject the google analytics tag
             (function() {
-              var document = $document[0];
-              var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-              ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-              var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+              var gaTag = $document[0].createElement('script');
+              gaTag.type = 'text/javascript';
+              gaTag.async = true;
+              gaTag.src = '//www.google-analytics.com/analytics.js';
+              var s = $document[0].getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(gaTag, s);
             })();
             created = true;
           }
+          // for testing
           this._log = function() {
-            // for testing
             this._logs.push(arguments);
           };
-          this._trackPage = function(url) {
-            if (trackRoutes && $window._gaq) {
-              $window._gaq.push(['_trackPageview', trackPrefix + url]);
-              this._log('_trackPageview', arguments);
-            }
+
+          /**
+            * Track Pageview
+            * @param url (gets the trackPrefix appended to it)
+            * @param title (optional)
+            * @private
+            */
+          this._trackPage = function(url,title) {
+              if (angular.isUndefined($window.__gaTracker)) { return; }
+              if (!trackRoutes) { return; }
+
+              var opts = { 'page':trackPrefix + url };
+              if(angular.isDefined(title) && title !== '') {
+                  opts.title = title;
+              }
+              $window.__gaTracker('send','pageview', opts);
+              this._log('pageview', arguments);
           };
+
+          /**
+            * Track Event
+            * https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#events
+            * @param category
+            * @param action
+            * @param label
+            * @param value
+            * @private
+            */
           this._trackEvent = function(category, action, label, value) {
-            if ($window._gaq) {
-              $window._gaq.push(['_trackEvent', category, action, label, value]);
-              this._log('trackEvent', arguments);
-            }
+              if (angular.isUndefined($window.__gaTracker)) { return; }
+
+              $window.__gaTracker('send','event', {
+                  'eventCategory': category,
+                  'eventAction': action,
+                  'eventLabel': label,
+                  'eventValue': value
+              });
+              this._log('event', arguments);
           };
 
           /**
            * Add transaction
-           * https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiEcommerce#_gat.GA_Tracker_._addTrans
+           * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce#addTrans
            * @param transactionId
            * @param affiliation
            * @param total
            * @param tax
            * @param shipping
-           * @param city
-           * @param state
-           * @param country
            * @private
+           * temporarily removing city, state, country as I don't see these in the newer documentation
            */
-          this._addTrans = function (transactionId, affiliation, total, tax, shipping, city, state, country) {
-            if ($window._gaq) {
-              $window._gaq.push(['_addTrans', transactionId, affiliation, total, tax, shipping, city, state, country]);
-              this._log('_addTrans', arguments);
+          this._addTrans = function (transactionId, affiliation, total, tax, shipping) {
+            if (angular.isUndefined($window.__gaTracker)) { return; }
+
+            //guard in case ecommerce hasn't been loaded, shouldn't really happen
+            if(trackEcommerce && !ecommerceLoaded) {
+                $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
+                ecommerceLoaded = true;
             }
+
+            $window.__gaTracker('ecommerce:addTransaction', {
+                'id': transactionId,
+                'affiliation': affiliation,
+                'revenue': total,
+                'shipping': shipping,
+                'tax': tax
+                //'city': city,
+                //'state': state,
+                //'country': country
+            });
+            this._log('ecommerce:addTransaction', arguments);
           };
 
           /**
            * Add item to transaction
-           * https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiEcommerce#_gat.GA_Tracker_._addItem
+           * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce#addItem
            * @param transactionId
-           * @param sku
            * @param name
+           * @param sku
            * @param category
            * @param price
            * @param quantity
            * @private
            */
-          this._addItem = function (transactionId, sku, name, category, price, quantity) {
-            if ($window._gaq) {
-              $window._gaq.push(['_addItem', transactionId, sku, name, category, price, quantity]);
-              this._log('_addItem', arguments);
-            }
+          this._addItem = function (transactionId, name, sku, category, price, quantity) {
+              if (angular.isUndefined($window.__gaTracker)) { return; }
+
+              $window.__gaTracker('ecommerce:addItem', {
+                  'id': transactionId,
+                  'name': name,
+                  'sku': sku,
+                  'category': category,
+                  'price': price,
+                  'quantity': quantity
+              });
+              this._log('ecommerce:addItem', arguments);
           };
 
           /**
            * Track transaction
-           * https://developers.google.com/analytics/devguides/collection/gajs/methods/gaJSApiEcommerce#_gat.GA_Tracker_._trackTrans
+           * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce#sendingData
            * @private
            */
           this._trackTrans = function () {
-            if ($window._gaq) {
-              $window._gaq.push(['_trackTrans']);
-            }
-            this._log('_trackTrans', arguments);
+              if (angular.isUndefined($window.__gaTracker)) { return; }
+
+              $window.__gaTracker('ecommerce:send');
+              this._log('ecommerce:send', arguments);
           };
 
-            // creates the ganalytics tracker
-            _createScriptTag();
+          /**
+           * Clear transaction
+           * https://developers.google.com/analytics/devguides/collection/analyticsjs/ecommerce#clearingData
+           * @private
+           */
+          this._clearTrans = function () {
+              if (angular.isUndefined($window.__gaTracker)) { return; }
 
-            var me = this;
+              $window.__gaTracker('ecommerce:clear');
+              this._log('ecommerce:clear', arguments);
+          };
 
-            // activates page tracking
-            if (trackRoutes) $rootScope.$on('$routeChangeSuccess', function() {
-              me._trackPage($location.path());
-            });
 
-            return {
+          // --------- initialization steps -----------------------
+          // creates the ganalytics tracker
+          _createScriptTag();
+
+          var me = this;
+
+          // activates page tracking
+          if (trackRoutes) {
+              $rootScope.$on('$routeChangeSuccess', function() {
+                  me._trackPage($location.path(), $rootScope.pageTitle);
+              });
+          }
+          // --------- end initialization steps -----------------------
+
+
+          // the rest of the public interface
+          return {
                 _logs: me._logs,
-                trackPage: function(url) {
+                trackPage: function(url, title) {
                     // add a page event
-                    me._trackPage(url);
+                    me._trackPage(url, title);
                 },
                 trackEvent: function(category, action, label, value) {
                     // add an action event
                     me._trackEvent(category, action, label, value);
                 },
-                addTrans: function (transactionId, affiliation, total, tax, shipping, city, state, country) {
-                    me._addTrans(transactionId, affiliation, total, tax, shipping, city, state, country);
+                addTrans: function (transactionId, affiliation, total, tax, shipping) {
+                    me._addTrans(transactionId, affiliation, total, tax, shipping);
                 },
                 addItem: function (transactionId, sku, name, category, price, quantity) {
-                    me._addItem(transactionId, sku, name, category, price, quantity);
+                    me._addItem(transactionId, name, sku, category, price, quantity);
                 },
                 trackTrans: function () {
                     me._trackTrans();
+                },
+                clearTrans: function () {
+                    me._clearTrans();
                 }
             };
         }];
