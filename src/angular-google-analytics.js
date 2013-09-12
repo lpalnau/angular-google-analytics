@@ -89,16 +89,19 @@ angular.module('angular-google-analytics', [])
           /**
             * Track Pageview
             * https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#hit
-            * @param url (gets the trackPrefix appended to it)
-            * @param title (optional)
+            * @param url (optional, if not specified $location.path() will be used, and this gets the trackPrefix prefixed onto it)
+            * @param title (optional, if not specified $rootScope.pageTitle will be used if defined, else let GA use the document.title property)
             * @private
             */
           this._trackPage = function(url,title) {
               if (angular.isUndefined($window.__gaTracker)) { return; }
+
+              if (angular.isUndefined(url)) { url = $location.path(); }
               var fullUrl = trackPrefix + url;
               if (fullUrl != '' && fullUrl.charAt(0) !== '/') { fullUrl = '/' + fullUrl; } //page should always start with a /
               var opts = { 'page': fullUrl };
 
+              if(angular.isUndefined(title) && angular.isDefined($rootScope.pageTitle)) { title = $rootScope.pageTitle; }
               if(angular.isDefined(title) && title !== '') { opts.title = title; }
 
               $window.__gaTracker('send','pageview', opts);
