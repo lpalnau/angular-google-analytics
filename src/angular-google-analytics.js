@@ -88,18 +88,19 @@ angular.module('angular-google-analytics', [])
 
           /**
             * Track Pageview
+            * https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#hit
             * @param url (gets the trackPrefix appended to it)
             * @param title (optional)
             * @private
             */
           this._trackPage = function(url,title) {
               if (angular.isUndefined($window.__gaTracker)) { return; }
-              if (!trackRoutes) { return; }
+              var fullUrl = trackPrefix + url;
+              if (fullUrl != '' && fullUrl.charAt(0) !== '/') { fullUrl = '/' + fullUrl; } //page should always start with a /
+              var opts = { 'page': fullUrl };
 
-              var opts = { 'page':trackPrefix + url };
-              if(angular.isDefined(title) && title !== '') {
-                  opts.title = title;
-              }
+              if(angular.isDefined(title) && title !== '') { opts.title = title; }
+
               $window.__gaTracker('send','pageview', opts);
               this._log('pageview', arguments);
           };
@@ -245,6 +246,11 @@ angular.module('angular-google-analytics', [])
                 },
                 clearTrans: function () {
                     me._clearTrans();
+                },
+                ga: function() {
+                    if(angular.isDefined($window.__gaTracker)) {
+                        $window.__gaTracker(arguments);
+                    }
                 }
             };
         }];
