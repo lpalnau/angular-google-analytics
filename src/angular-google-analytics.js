@@ -212,6 +212,17 @@ angular.module('angular-google-analytics', [])
           };
 
 
+          this._trackSocial = function(network, action, target) {
+              if (angular.isUndefined($window.__gaTracker)) { return; }
+
+              $window.__gaTracker('send','social', {
+                 'socialNetwork': network,
+                 'socialAction': action,
+                 'socialTarget': target
+              });
+              this._log('trackSocial', arguments);
+          };
+
           // --------- initialization steps -----------------------
           // creates the ganalytics tracker
           _createScriptTag();
@@ -249,6 +260,9 @@ angular.module('angular-google-analytics', [])
                 },
                 clearTrans: function () {
                     me._clearTrans();
+                },
+                trackSocial: function(network, action, target) {
+                    me._trackSocial(network, action, target);
                 },
                 ga: function() {
                     if(angular.isDefined($window.__gaTracker)) {
