@@ -1,17 +1,17 @@
 {
-  "author": "revolunet",
-  "name": "angular-google-analytics",
-  "description": "East Analytics for your AngularJS application",
-  "version": "0.0.1",
-  "homepage": "https://github.com/revolunet/angular-google-analytics",
+  "author": "revolunet, Lucas Holt",
+  "name": "umc-angular-google-analytics",
+  "description": "Easy Analytics for your AngularJS application",
+  "version": "0.1.0",
+  "homepage": "https://github.com/laffer1/angular-google-analytics",
   "repository": {
     "type": "git",
-    "url": "git://github.com/revolunet/angular-google-analytics.git"
+    "url": "git://github.com/laffer1/angular-google-analytics.git"
   },
   "main": "./dist/angular-google-analytics.js",
   "dependencies": {
-    "angular": "1.0.6",
-    "angular-mocks": "1.0.6",
-    "angular-scenario": "1.0.6"
+    "angular": "~1.2.6",
+    "angular-mocks": "~1.2.6",
+    "angular-scenario": "~1.2.6"
   }
 }
