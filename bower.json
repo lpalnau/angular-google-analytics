@@ -1,5 +1,8 @@
 {
-  "author": "revolunet, Lucas Holt",
+  "author": [
+  	"revolunet",
+	"Lucas Holt"
+  ],
   "name": "umc-angular-google-analytics",
   "description": "Easy Analytics for your AngularJS application",
   "version": "0.1.0",
@@ -13,5 +16,6 @@
     "angular": "~1.2.6",
     "angular-mocks": "~1.2.6",
     "angular-scenario": "~1.2.6"
-  }
+  },
+  "ignore": ""
 }
