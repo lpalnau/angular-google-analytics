@@ -1,8 +1,6 @@
-# angular-google-analytics
+# umc-angular-google-analytics
 
 A simple service that let you integrate google analytics tracker in your AngularJS applications.
-
-Proudly brought to you by the [@revolunet](http://twitter.com/revolunet) team.
 
 ## features
 

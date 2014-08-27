@@ -1,6 +1,6 @@
 /* global angular, console */
 
-angular.module('angular-google-analytics', [])
+angular.module('umc-angular-google-analytics', [])
     .provider('Analytics', function() {
         'use strict';
         var created = false,
