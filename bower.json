@@ -1,11 +1,12 @@
 {
   "author": [
   	"revolunet",
+	"Luke Palnau",
 	"Lucas Holt"
   ],
   "name": "umc-angular-google-analytics",
   "description": "Easy Analytics for your AngularJS application",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "homepage": "https://github.com/laffer1/angular-google-analytics",
   "repository": {
     "type": "git",
