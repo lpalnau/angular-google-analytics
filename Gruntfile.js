@@ -100,6 +100,11 @@ module.exports = function(grunt) {
       },
       options: {
         configFile: 'test/karma.conf.js'
+      },
+      travis: {
+        configFile: 'test/karma.conf.js',
+        singleRun: true,
+        browsers: ['PhantomJS']
       }
     }
   });
@@ -152,5 +157,7 @@ module.exports = function(grunt) {
       done(code === 0);
     });
   });
+
+  grunt.registerTask('travis', ['karma:travis']);
 
 };
