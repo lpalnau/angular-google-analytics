@@ -9,7 +9,7 @@ angular.module('umc-angular-google-analytics', [])
             trackPrefix = '',
             domainName,
             filename = 'analytics.js',
-            pageEvent = '$routeChangeSuccess';
+            pageEvent = '$routeChangeSuccess',
             trackEcommerce = false,
             ecommerceLoaded = false;
 
@@ -42,7 +42,7 @@ angular.module('umc-angular-google-analytics', [])
         this.setPageEvent = function(name) {
           pageEvent = name;
           return true;
-        }
+        };
 
         this.trackEcommerce = function(doTrack) {
           trackEcommerce = doTrack;
@@ -59,7 +59,7 @@ angular.module('umc-angular-google-analytics', [])
 
             //initialize the window object __gaTracker
             $window.GoogleAnalyticsObject = '__gaTracker';
-            if(angular.isUndefined($window.__gaTracker)) {
+            if (angular.isUndefined($window.__gaTracker)) {
                 $window.__gaTracker = function() {
                     if(angular.isUndefined($window.__gaTracker.q)) {
                         $window.__gaTracker.q = [];
@@ -110,7 +110,7 @@ angular.module('umc-angular-google-analytics', [])
 
               if (angular.isUndefined(url)) { url = $location.path(); }
               var fullUrl = trackPrefix + url;
-              if (fullUrl != '' && fullUrl.charAt(0) !== '/') { fullUrl = '/' + fullUrl; } //page should always start with a /
+              if (fullUrl !== '' && fullUrl.charAt(0) !== '/') { fullUrl = '/' + fullUrl; } //page should always start with a /
               var opts = { 'page': fullUrl };
 
               if(angular.isUndefined(title) && angular.isDefined($rootScope.pageTitle)) { title = $rootScope.pageTitle; }
