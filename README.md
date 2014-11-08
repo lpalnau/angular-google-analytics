@@ -9,6 +9,7 @@ A simple service that let you integrate google analytics tracker in your Angular
  - events tracking
  - e-commerce tracking
  - multiple-domains
+ - ga.js and analytics.js support
 
 ## example
 
@@ -27,6 +28,9 @@ var app = angular.module('app', ['angular-google-analytics'])
         // url prefix (default is empty)
         // - for example: when an app doesn't run in the root directory
         AnalyticsProvider.trackPrefix('my-application');
+
+        // change filename to analytics.js
+        AnalyticsProvider.setFilename('analytics.js);
     }))
     .controller('SampleController', function(Analytics) {
         // create a new pageview event
@@ -57,6 +61,8 @@ AnalyticsProvider.setAccount('UA-XXXXX-xx');
 AnalyticsProvider.trackPages(false);
 //Optional set domain (Use 'none' for testing on localhost)
 AnalyticsProvider.setDomainName('XXX');
+//Change default file from ga.js
+AnalyticsProvider.setFilename('analytics.js');
 
 ```
 
