@@ -2,9 +2,9 @@
 
 'use strict';
 
-describe('angular-google-analytics', function(){
+describe('umc-angular-google-analytics', function(){
 
-    beforeEach(module('angular-google-analytics'));
+    beforeEach(module('umc-angular-google-analytics'));
     beforeEach(module(function(AnalyticsProvider) {
       AnalyticsProvider.setAccount('UA-XXXXXX-xx');
     }));
@@ -13,7 +13,7 @@ describe('angular-google-analytics', function(){
 
       it('should inject the GA script', function() {
         inject(function(Analytics) {
-          expect(document.querySelectorAll("script[src='http://www.google-analytics.com/ga.js']").length).toBe(1);
+          expect(document.querySelectorAll("script[src='//www.google-analytics.com/analytics.js']").length).toBe(1);
         });
       });
 
@@ -77,14 +77,14 @@ describe('angular-google-analytics', function(){
     });
   });
 
- describe('supports analytics.js', function() {
+ describe('supports legacy ga.js', function() {
     beforeEach(module(function(AnalyticsProvider) {
-      AnalyticsProvider.setFilename('analytics.js');
+      AnalyticsProvider.setFilename('ga.js');
     }));
 
-    it('should inject the Analytics script', function() {
+    it('should inject the GA Analytics script', function() {
       inject(function(Analytics) {
-        expect(document.querySelectorAll("script[src='//google-analytics.com/analytics.js']").length).toBe(1);
+        expect(document.querySelectorAll("script[src='//www.google-analytics.com/ga.js']").length).toBe(1);
       });
     });
 
