@@ -8,6 +8,7 @@ angular.module('umc-angular-google-analytics', [])
             accountId,
             trackPrefix = '',
             domainName,
+            filename = 'analytics.js',
             trackEcommerce = false,
             ecommerceLoaded = false;
 
@@ -29,6 +30,11 @@ angular.module('umc-angular-google-analytics', [])
 
         this.setDomainName = function(domain) {
           domainName = domain;
+          return true;
+        };
+        
+        this.setFilename = function(name) {
+          filename = name;
           return true;
         };
 
@@ -75,7 +81,7 @@ angular.module('umc-angular-google-analytics', [])
               var gaTag = $document[0].createElement('script');
               gaTag.type = 'text/javascript';
               gaTag.async = true;
-              gaTag.src = '//www.google-analytics.com/analytics.js';
+              gaTag.src = '//www.google-analytics.com/' + filename;
               var s = $document[0].getElementsByTagName('script')[0];
               s.parentNode.insertBefore(gaTag, s);
             })();
