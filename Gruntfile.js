@@ -102,9 +102,11 @@ module.exports = function(grunt) {
         configFile: 'test/karma.conf.js'
       },
       travis: {
+        options: {
         configFile: 'test/karma.conf.js',
         singleRun: true,
         browsers: ['PhantomJS']
+        }
       }
     }
   });
