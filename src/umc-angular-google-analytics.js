@@ -9,6 +9,7 @@ angular.module('umc-angular-google-analytics', [])
             trackPrefix = '',
             domainName,
             filename = 'analytics.js',
+            pageEvent = '$routeChangeSuccess';
             trackEcommerce = false,
             ecommerceLoaded = false;
 
@@ -37,6 +38,11 @@ angular.module('umc-angular-google-analytics', [])
           filename = name;
           return true;
         };
+
+        this.setPageEvent = function(name) {
+          pageEvent = name;
+          return true;
+        }
 
         this.trackEcommerce = function(doTrack) {
           trackEcommerce = doTrack;
@@ -237,7 +243,7 @@ angular.module('umc-angular-google-analytics', [])
 
           // activates page tracking
           if (trackRoutes) {
-              $rootScope.$on('$routeChangeSuccess', function() {
+              $rootScope.$on(pageEvent, function() {
                   me._trackPage($location.path(), $rootScope.pageTitle);
               });
           }
