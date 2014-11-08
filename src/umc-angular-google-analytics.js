@@ -80,7 +80,7 @@ angular.module('umc-angular-google-analytics', [])
                 ecommerceLoaded = true;
             }
 
-            if (trackRoutes) this._trackPage($location.path(), $rootScope.pageTitle);
+            if (trackRoutes) $window.__gaTracker('send','pageview');
 
             // inject the google analytics tag
             (function() {
