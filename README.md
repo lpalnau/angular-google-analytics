@@ -1,3 +1,5 @@
+[![Build Status](https://secure.travis-ci.org/laffer1/angular-google-analytics.png?branch=master)](https://travis-ci.org/laffer1/angular-google-analytics)
+
 # umc-angular-google-analytics
 
 A simple service that let you integrate google analytics tracker in your AngularJS applications.
