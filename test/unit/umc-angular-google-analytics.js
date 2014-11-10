@@ -98,7 +98,7 @@ describe('umc-angular-google-analytics', function(){
     it('should inject the Analytics script', function() {
       inject(function(Analytics, $rootScope) {
         $rootScope.$broadcast('$stateChangeSuccess');
-        expect(Analytics._logs.length).toBe(1);
+        expect(Analytics._logs.length).toBe(2);
       });
     });
 
