@@ -53,7 +53,7 @@ angular.module('umc-angular-google-analytics', [])
         // public service
         this.$get = ['$document', '$rootScope', '$location', '$window', function($document, $rootScope, $location, $window) {
           // private methods
-          function _createScriptTag() {
+          this._createScriptTag = function() {
             //require accountId
             if (!accountId) return;
 
@@ -80,7 +80,9 @@ angular.module('umc-angular-google-analytics', [])
                 ecommerceLoaded = true;
             }
 
-            if (trackRoutes) $window.__gaTracker('send','pageview');
+            if (trackRoutes) {
+              this._trackPage($location.path(), $rootScope.pageTitle); // TODO: this is too specific to our apps
+            }
 
             // inject the google analytics tag
             (function() {
@@ -92,7 +94,7 @@ angular.module('umc-angular-google-analytics', [])
               s.parentNode.insertBefore(gaTag, s);
             })();
             created = true;
-          }
+          };
           // for testing
           this._log = function() {
             this._logs.push(arguments);
@@ -237,7 +239,7 @@ angular.module('umc-angular-google-analytics', [])
 
           // --------- initialization steps -----------------------
           // creates the ganalytics tracker
-          _createScriptTag();
+          this._createScriptTag();
 
           var me = this;
 
