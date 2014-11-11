@@ -2,9 +2,9 @@
 
 'use strict';
 
-describe('angular-google-analytics', function(){
+describe('umc-angular-google-analytics', function(){
 
-    beforeEach(module('angular-google-analytics'));
+    beforeEach(module('umc-angular-google-analytics'));
     beforeEach(module(function(AnalyticsProvider) {
       AnalyticsProvider.setAccount('UA-XXXXXX-xx');
     }));
@@ -75,6 +75,33 @@ describe('angular-google-analytics', function(){
         expect(Analytics._logs.length).toBe(0);
       });
     });
+  });
+
+ describe('supports legacy ga.js', function() {
+    beforeEach(module(function(AnalyticsProvider) {
+      AnalyticsProvider.setFilename('ga.js');
+    }));
+
+    it('should inject the GA Analytics script', function() {
+      inject(function(Analytics) {
+        expect(document.querySelectorAll("script[src='//www.google-analytics.com/ga.js']").length).toBe(1);
+      });
+    });
+
+  });
+
+ describe('supports arbitrary page events', function() {
+    beforeEach(module(function(AnalyticsProvider) {
+      AnalyticsProvider.setPageEvent('$stateChangeSuccess');
+    }));
+
+    it('should inject the Analytics script', function() {
+      inject(function(Analytics, $rootScope) {
+        $rootScope.$broadcast('$stateChangeSuccess');
+        expect(Analytics._logs.length).toBe(2);
+      });
+    });
+
   });
 
 });

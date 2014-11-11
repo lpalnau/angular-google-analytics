@@ -1,6 +1,6 @@
 /* global angular, console */
 
-angular.module('angular-google-analytics', [])
+angular.module('umc-angular-google-analytics', [])
     .provider('Analytics', function() {
         'use strict';
         var created = false,
@@ -8,6 +8,8 @@ angular.module('angular-google-analytics', [])
             accountId,
             trackPrefix = '',
             domainName,
+            filename = 'analytics.js',
+            pageEvent = '$routeChangeSuccess',
             trackEcommerce = false,
             ecommerceLoaded = false;
 
@@ -31,6 +33,16 @@ angular.module('angular-google-analytics', [])
           domainName = domain;
           return true;
         };
+        
+        this.setFilename = function(name) {
+          filename = name;
+          return true;
+        };
+
+        this.setPageEvent = function(name) {
+          pageEvent = name;
+          return true;
+        };
 
         this.trackEcommerce = function(doTrack) {
           trackEcommerce = doTrack;
@@ -47,7 +59,7 @@ angular.module('angular-google-analytics', [])
 
             //initialize the window object __gaTracker
             $window.GoogleAnalyticsObject = '__gaTracker';
-            if(angular.isUndefined($window.__gaTracker)) {
+            if (angular.isUndefined($window.__gaTracker)) {
                 $window.__gaTracker = function() {
                     if(angular.isUndefined($window.__gaTracker.q)) {
                         $window.__gaTracker.q = [];
@@ -69,7 +81,7 @@ angular.module('angular-google-analytics', [])
             }
 
             if (trackRoutes) {
-              this._trackPage($location.path(), $rootScope.pageTitle);
+              this._trackPage($location.path(), $rootScope.pageTitle); // TODO: this is too specific to our apps
             }
 
             // inject the google analytics tag
@@ -77,7 +89,7 @@ angular.module('angular-google-analytics', [])
               var gaTag = $document[0].createElement('script');
               gaTag.type = 'text/javascript';
               gaTag.async = true;
-              gaTag.src = '//www.google-analytics.com/analytics.js';
+              gaTag.src = '//www.google-analytics.com/' + filename;
               var s = $document[0].getElementsByTagName('script')[0];
               s.parentNode.insertBefore(gaTag, s);
             })();
@@ -233,7 +245,7 @@ angular.module('angular-google-analytics', [])
 
           // activates page tracking
           if (trackRoutes) {
-              $rootScope.$on('$routeChangeSuccess', function() {
+              $rootScope.$on(pageEvent, function() {
                   me._trackPage($location.path(), $rootScope.pageTitle);
               });
           }
