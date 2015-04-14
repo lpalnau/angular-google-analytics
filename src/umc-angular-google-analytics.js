@@ -20,10 +20,10 @@ angular.module('umc-angular-google-analytics', [])
         // config methods
         this.setAccount = function(id) {
 			// first tracker in array is always the "account" value
-			if (trackers.length == 0) {
-				trackers.push({ code: id, name: ''});
+			if (this.trackers.length == 0) {
+				this.trackers.push({ code: id, name: ''});
 			} else {
-				trackers[0] = { code: id, name: ''};
+				this.trackers[0] = { code: id, name: ''};
 			}
           return true;
         };
@@ -66,22 +66,22 @@ angular.module('umc-angular-google-analytics', [])
 		this.addTracker = function(code, name) {
 			// handle special case of primary tracker
 			if (name === null || name === '') {
-				trackers[0].code = code;
+				this.trackers[0].code = code;
 				return;
 			}
 			
-			for (var i = 1; i < trackers.length; i++) {
-				if (trackers[i].name == name) {
-					trackers[i].code = code;
+			for (var i = 1; i < this.trackers.length; i++) {
+				if (this.trackers[i].name == name) {
+					this.trackers[i].code = code;
 					return;
 				}
 			} 
 			
-			trackers.push({ code: code, name: name });
+			this.trackers.push({ code: code, name: name });
 		};
 		
 		this.getTrackers = function() {
-			return trackers;
+			return this.trackers;
 		};
 
         // public service
@@ -89,7 +89,7 @@ angular.module('umc-angular-google-analytics', [])
           // private methods
           this._createScriptTag = function() {
             //require a tracking id
-            if (trackers.length == 0) return;
+            if (this.trackers.length == 0) return;
 
             //initialize the window object __gaTracker
             $window.GoogleAnalyticsObject = '__gaTracker';
@@ -108,11 +108,11 @@ angular.module('umc-angular-google-analytics', [])
             }
 
 			// create the primary tracker
-            $window.__gaTracker('create', trackers[0].code);
+            $window.__gaTracker('create', this.trackers[0].code);
 			
 			// create secondary trackers if present
-			for (var i = 1; i < trackers.length; i++) {
-				$window.__gaTracker('create', trackers[i].code, {'name': trackers[i].name });
+			for (var i = 1; i < this.trackers.length; i++) {
+				$window.__gaTracker('create', this.trackers[i].code, {'name': trackers[i].name });
 			}
 
             if (trackEcommerce && !ecommerceLoaded) {
@@ -180,8 +180,8 @@ angular.module('umc-angular-google-analytics', [])
 			  // primary
               $window.__gaTracker('send','pageview', opts);
 			  // secondary trackers
-			  for (var i = 1; i < trackers.length; i++) {
-				$window.__gaTracker(trackers[i].name + '.send','pageview', opts);
+			  for (var i = 1; i < this.trackers.length; i++) {
+				$window.__gaTracker(this.trackers[i].name + '.send','pageview', opts);
 			  }
               this._log('pageview', arguments);
           };
@@ -320,6 +320,7 @@ angular.module('umc-angular-google-analytics', [])
           // the rest of the public interface
           return {
                 _logs: me._logs,
+				trackers: me.trackers,
                 trackPage: function(url, title) {
                     // add a page event
                     me._trackPage(url, title);
@@ -344,7 +345,7 @@ angular.module('umc-angular-google-analytics', [])
                     me._trackSocial(network, action, target);
                 },
                 ga: function() {
-                    if(angular.isDefined($window.__gaTracker)) {
+                    if (angular.isDefined($window.__gaTracker)) {
                         $window.__gaTracker(arguments);
                     }
                 }
