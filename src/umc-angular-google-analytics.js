@@ -12,6 +12,8 @@ angular.module('umc-angular-google-analytics', [])
             pageEvent = '$routeChangeSuccess',
             trackEcommerce = false,
             ecommerceLoaded = false;
+		var trackDisplayfeatures = false;
+		var displayfeaturesLoaded = false;
 
         this._logs = [];
 
@@ -78,6 +80,11 @@ angular.module('umc-angular-google-analytics', [])
             if (trackEcommerce && !ecommerceLoaded) {
                 $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
                 ecommerceLoaded = true;
+            }
+			
+			if (trackDisplayfeatures && !displayfeaturesLoaded) {
+                $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
+                displayfeaturesLoaded = true;
             }
 
             if (trackRoutes) {
@@ -158,7 +165,7 @@ angular.module('umc-angular-google-analytics', [])
             if (angular.isUndefined($window.__gaTracker)) { return; }
 
             //guard in case ecommerce hasn't been loaded, shouldn't really happen
-            if(trackEcommerce && !ecommerceLoaded) {
+            if (trackEcommerce && !ecommerceLoaded) {
                 $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
                 ecommerceLoaded = true;
             }
