@@ -32,7 +32,7 @@ var app = angular.module('app', ['umc-angular-google-analytics'])
         AnalyticsProvider.trackPrefix('my-application');
 
         // change filename to analytics.js
-        AnalyticsProvider.setFilename('analytics.js);
+        AnalyticsProvider.setFilename('analytics.js');
 		
 		// Turn on display features tracking. Use before track page call
 		AnalyticsProvider.trackDisplayFeatures(true);
