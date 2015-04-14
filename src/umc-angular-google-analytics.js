@@ -20,7 +20,7 @@ angular.module('umc-angular-google-analytics', [])
         // config methods
         this.setAccount = function(id) {
 			// first tracker in array is always the "account" value
-			if (this.trackers.length == 0) {
+			if (this.trackers.length === 0) {
 				this.trackers.push({ code: id, name: ''});
 			} else {
 				this.trackers[0] = { code: id, name: ''};
@@ -71,7 +71,7 @@ angular.module('umc-angular-google-analytics', [])
 			}
 			
 			for (var i = 1; i < this.trackers.length; i++) {
-				if (this.trackers[i].name == name) {
+				if (this.trackers[i].name === name) {
 					this.trackers[i].code = code;
 					return;
 				}
@@ -89,7 +89,8 @@ angular.module('umc-angular-google-analytics', [])
           // private methods
           this._createScriptTag = function() {
             //require a tracking id
-            if (this.trackers.length == 0) return;
+            if (this.trackers.length === 0) 
+            	return;
 
             //initialize the window object __gaTracker
             $window.GoogleAnalyticsObject = '__gaTracker';
@@ -112,7 +113,7 @@ angular.module('umc-angular-google-analytics', [])
 			
 			// create secondary trackers if present
 			for (var i = 1; i < this.trackers.length; i++) {
-				$window.__gaTracker('create', this.trackers[i].code, {'name': trackers[i].name });
+				$window.__gaTracker('create', this.trackers[i].code, {'name': this.trackers[i].name });
 			}
 
             if (trackEcommerce && !ecommerceLoaded) {
