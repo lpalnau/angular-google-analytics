@@ -16,7 +16,7 @@ A simple service that let you integrate google analytics tracker in your Angular
 ## example
 
 ```js
-var app = angular.module('app', ['angular-google-analytics'])
+var app = angular.module('app', ['umc-angular-google-analytics'])
     .config(function(AnalyticsProvider, function() {
         // initial configuration
         AnalyticsProvider.setAccount('UA-XXXXX-xx');
