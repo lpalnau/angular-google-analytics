@@ -73,4 +73,6 @@ AnalyticsProvider.trackDisplayFeatures(true);
 ```
 
 ## Licence
-As AngularJS itself, this module is released under the permissive [MIT license](http://revolunet.mit-license.org). Your contributions are always welcome.
+As AngularJS itself, this module is released under the permissive [MIT license]. Your contributions are always welcome.
+
+See the LICENSE file.
