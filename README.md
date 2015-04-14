@@ -33,6 +33,9 @@ var app = angular.module('app', ['umc-angular-google-analytics'])
 
         // change filename to analytics.js
         AnalyticsProvider.setFilename('analytics.js);
+		
+		// Turn on display features tracking. Use before track page call
+		AnalyticsProvider.trackDisplayFeatures(true);
     }))
     .controller('SampleController', function(Analytics) {
         // create a new pageview event

@@ -50,7 +50,11 @@ angular.module('umc-angular-google-analytics', [])
           trackEcommerce = doTrack;
           return true;
         };
-
+		
+		this.trackDisplayFeatures = function(doTrack) {
+		  trackDisplayfeatures = doTrack;
+		  return true;
+		};
 
         // public service
         this.$get = ['$document', '$rootScope', '$location', '$window', function($document, $rootScope, $location, $window) {
