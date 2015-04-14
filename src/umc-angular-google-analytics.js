@@ -5,7 +5,6 @@ angular.module('umc-angular-google-analytics', [])
         'use strict';
         var created = false,
             trackRoutes = true,
-            accountId,
             trackPrefix = '',
             domainName,
             filename = 'analytics.js',
@@ -14,18 +13,26 @@ angular.module('umc-angular-google-analytics', [])
             ecommerceLoaded = false;
 		var trackDisplayfeatures = false;
 		var displayfeaturesLoaded = false;
-
+		
+		this.trackers = [];
         this._logs = [];
 
         // config methods
         this.setAccount = function(id) {
-          accountId = id;
+			// first tracker in array is always the "account" value
+			if (trackers.length == 0) {
+				trackers.push({ code: id, name: ''});
+			} else {
+				trackers[0] = { code: id, name: ''};
+			}
           return true;
         };
+		
         this.trackPages = function(doTrack) {
           trackRoutes = doTrack;
           return true;
         };
+		
         this.trackPrefix = function(prefix) {
           trackPrefix = prefix;
           return true;
@@ -55,19 +62,27 @@ angular.module('umc-angular-google-analytics', [])
 		  trackDisplayfeatures = doTrack;
 		  return true;
 		};
+		
+		this.addTracker = function(code, name) {
+			trackers.push({ code: code, name: name });
+		};
+		
+		this.getTrackers = function() {
+			return trackers;
+		};
 
         // public service
         this.$get = ['$document', '$rootScope', '$location', '$window', function($document, $rootScope, $location, $window) {
           // private methods
           this._createScriptTag = function() {
-            //require accountId
-            if (!accountId) return;
+            //require a tracking id
+            if (trackers.length == 0) return;
 
             //initialize the window object __gaTracker
             $window.GoogleAnalyticsObject = '__gaTracker';
             if (angular.isUndefined($window.__gaTracker)) {
                 $window.__gaTracker = function() {
-                    if(angular.isUndefined($window.__gaTracker.q)) {
+                    if (angular.isUndefined($window.__gaTracker.q)) {
                         $window.__gaTracker.q = [];
                     }
                     $window.__gaTracker.q.push(arguments);
@@ -75,20 +90,28 @@ angular.module('umc-angular-google-analytics', [])
                 $window.__gaTracker.l=1*new Date();
             }
             var opts = {};
-            if(domainName) {
+            if (domainName) {
                 opts.cookieDomain = domainName;
             }
 
-            $window.__gaTracker('create', accountId);
+			// create the primary tracker
+            $window.__gaTracker('create', trackers[0].code);
+			
+			// create secondary trackers if present
+			for (var i = 1; i < trackers.length; i++) {
+				$window.__gaTracker('create', trackers[i].code, {'name': trackers[i].name });
+			}
 
             if (trackEcommerce && !ecommerceLoaded) {
                 $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
                 ecommerceLoaded = true;
+				this._log('loadGA', 'ecommerce');
             }
 			
 			if (trackDisplayfeatures && !displayfeaturesLoaded) {
                 $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
                 displayfeaturesLoaded = true;
+				this._log('loadGA', 'displayfeatures');
             }
 
             if (trackRoutes) {
@@ -119,17 +142,34 @@ angular.module('umc-angular-google-analytics', [])
             * @private
             */
           this._trackPage = function(url,title) {
-              if (angular.isUndefined($window.__gaTracker)) { return; }
+              if (angular.isUndefined($window.__gaTracker)) {
+				return; 
+			  }
+			  
+  			  if (trackDisplayfeatures && !displayfeaturesLoaded) {
+                $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
+                displayfeaturesLoaded = true;
+				this._log('loadGA', 'displayfeatures');
+              }
 
               if (angular.isUndefined(url)) { url = $location.path(); }
               var fullUrl = trackPrefix + url;
               if (fullUrl !== '' && fullUrl.charAt(0) !== '/') { fullUrl = '/' + fullUrl; } //page should always start with a /
               var opts = { 'page': fullUrl };
 
-              if(angular.isUndefined(title) && angular.isDefined($rootScope.pageTitle)) { title = $rootScope.pageTitle; }
-              if(angular.isDefined(title) && title !== '') { opts.title = title; }
+              if (angular.isUndefined(title) && angular.isDefined($rootScope.pageTitle)) {
+			    title = $rootScope.pageTitle; 
+              }
+              if (angular.isDefined(title) && title !== '') { 
+			    opts.title = title; 
+			  }
 
+			  // primary
               $window.__gaTracker('send','pageview', opts);
+			  // secondary trackers
+			  for (var i = 1; i < trackers.length; i++) {
+				$window.__gaTracker(trackers[i].name + '.send','pageview', opts);
+			  }
               this._log('pageview', arguments);
           };
 
@@ -172,6 +212,7 @@ angular.module('umc-angular-google-analytics', [])
             if (trackEcommerce && !ecommerceLoaded) {
                 $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
                 ecommerceLoaded = true;
+				this._log('loadGA', 'ecommerce');
             }
 
             $window.__gaTracker('ecommerce:addTransaction', {
