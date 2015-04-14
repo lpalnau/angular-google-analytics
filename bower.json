@@ -14,9 +14,9 @@
   },
   "main": "./src/umc-angular-google-analytics.js",
   "dependencies": {
-    "angular": "~1.2.23",
-    "angular-mocks": "~1.2.23",
-    "angular-scenario": "~1.2.23"
+    "angular": "~1.2.20",
+    "angular-mocks": "~1.2.20",
+    "angular-scenario": "~1.2.20"
   },
   "ignore": ""
 }
