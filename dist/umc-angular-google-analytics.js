@@ -1,6 +1,6 @@
 /**
  * UMC Angular Google Analytics - Easy tracking for your AngularJS application
- * @version v0.1.5 - 2014-11-10
+ * @version v0.1.7 - 2015-04-14
  * @link http://github.com/laffer1/angular-google-analytics
  * @author Julien Bouquillon <julien@revolunet.com>,Luke Palnau <lpalnau@umich.edu>,Lucas Holt <lholt@umich.edu>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -12,25 +12,34 @@ angular.module('umc-angular-google-analytics', [])
         'use strict';
         var created = false,
             trackRoutes = true,
-            accountId,
             trackPrefix = '',
             domainName,
             filename = 'analytics.js',
             pageEvent = '$routeChangeSuccess',
             trackEcommerce = false,
             ecommerceLoaded = false;
-
+		var trackDisplayfeatures = false;
+		var displayfeaturesLoaded = false;
+		
+		this.trackers = [];
         this._logs = [];
 
         // config methods
         this.setAccount = function(id) {
-          accountId = id;
+			// first tracker in array is always the "account" value
+			if (this.trackers.length === 0) {
+				this.trackers.push({ code: id, name: ''});
+			} else {
+				this.trackers[0] = { code: id, name: ''};
+			}
           return true;
         };
+		
         this.trackPages = function(doTrack) {
           trackRoutes = doTrack;
           return true;
         };
+		
         this.trackPrefix = function(prefix) {
           trackPrefix = prefix;
           return true;
@@ -55,20 +64,46 @@ angular.module('umc-angular-google-analytics', [])
           trackEcommerce = doTrack;
           return true;
         };
-
+		
+		this.trackDisplayFeatures = function(doTrack) {
+		  trackDisplayfeatures = doTrack;
+		  return true;
+		};
+		
+		this.addTracker = function(code, name) {
+			// handle special case of primary tracker
+			if (name === null || name === '') {
+				this.trackers[0].code = code;
+				return;
+			}
+			
+			for (var i = 1; i < this.trackers.length; i++) {
+				if (this.trackers[i].name === name) {
+					this.trackers[i].code = code;
+					return;
+				}
+			} 
+			
+			this.trackers.push({ code: code, name: name });
+		};
+		
+		this.getTrackers = function() {
+			return this.trackers;
+		};
 
         // public service
         this.$get = ['$document', '$rootScope', '$location', '$window', function($document, $rootScope, $location, $window) {
           // private methods
           this._createScriptTag = function() {
-            //require accountId
-            if (!accountId) return;
+            //require a tracking id
+            if (this.trackers.length === 0) 
+            	return;
 
             //initialize the window object __gaTracker
             $window.GoogleAnalyticsObject = '__gaTracker';
             if (angular.isUndefined($window.__gaTracker)) {
                 $window.__gaTracker = function() {
-                    if(angular.isUndefined($window.__gaTracker.q)) {
+                    if (angular.isUndefined($window.__gaTracker.q)) {
                         $window.__gaTracker.q = [];
                     }
                     $window.__gaTracker.q.push(arguments);
@@ -76,15 +111,28 @@ angular.module('umc-angular-google-analytics', [])
                 $window.__gaTracker.l=1*new Date();
             }
             var opts = {};
-            if(domainName) {
+            if (domainName) {
                 opts.cookieDomain = domainName;
             }
 
-            $window.__gaTracker('create', accountId);
+			// create the primary tracker
+            $window.__gaTracker('create', this.trackers[0].code);
+			
+			// create secondary trackers if present
+			for (var i = 1; i < this.trackers.length; i++) {
+				$window.__gaTracker('create', this.trackers[i].code, {'name': this.trackers[i].name });
+			}
 
             if (trackEcommerce && !ecommerceLoaded) {
                 $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
                 ecommerceLoaded = true;
+				this._log('loadGA', 'ecommerce');
+            }
+			
+			if (trackDisplayfeatures && !displayfeaturesLoaded) {
+                $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
+                displayfeaturesLoaded = true;
+				this._log('loadGA', 'displayfeatures');
             }
 
             if (trackRoutes) {
@@ -115,17 +163,34 @@ angular.module('umc-angular-google-analytics', [])
             * @private
             */
           this._trackPage = function(url,title) {
-              if (angular.isUndefined($window.__gaTracker)) { return; }
+              if (angular.isUndefined($window.__gaTracker)) {
+				return; 
+			  }
+			  
+  			  if (trackDisplayfeatures && !displayfeaturesLoaded) {
+                $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
+                displayfeaturesLoaded = true;
+				this._log('loadGA', 'displayfeatures');
+              }
 
               if (angular.isUndefined(url)) { url = $location.path(); }
               var fullUrl = trackPrefix + url;
               if (fullUrl !== '' && fullUrl.charAt(0) !== '/') { fullUrl = '/' + fullUrl; } //page should always start with a /
               var opts = { 'page': fullUrl };
 
-              if(angular.isUndefined(title) && angular.isDefined($rootScope.pageTitle)) { title = $rootScope.pageTitle; }
-              if(angular.isDefined(title) && title !== '') { opts.title = title; }
+              if (angular.isUndefined(title) && angular.isDefined($rootScope.pageTitle)) {
+			    title = $rootScope.pageTitle; 
+              }
+              if (angular.isDefined(title) && title !== '') { 
+			    opts.title = title; 
+			  }
 
+			  // primary
               $window.__gaTracker('send','pageview', opts);
+			  // secondary trackers
+			  for (var i = 1; i < this.trackers.length; i++) {
+				$window.__gaTracker(this.trackers[i].name + '.send','pageview', opts);
+			  }
               this._log('pageview', arguments);
           };
 
@@ -165,9 +230,10 @@ angular.module('umc-angular-google-analytics', [])
             if (angular.isUndefined($window.__gaTracker)) { return; }
 
             //guard in case ecommerce hasn't been loaded, shouldn't really happen
-            if(trackEcommerce && !ecommerceLoaded) {
+            if (trackEcommerce && !ecommerceLoaded) {
                 $window.__gaTracker('require', 'ecommerce', 'ecommerce.js');
                 ecommerceLoaded = true;
+				this._log('loadGA', 'ecommerce');
             }
 
             $window.__gaTracker('ecommerce:addTransaction', {
@@ -262,6 +328,7 @@ angular.module('umc-angular-google-analytics', [])
           // the rest of the public interface
           return {
                 _logs: me._logs,
+				trackers: me.trackers,
                 trackPage: function(url, title) {
                     // add a page event
                     me._trackPage(url, title);
@@ -286,7 +353,7 @@ angular.module('umc-angular-google-analytics', [])
                     me._trackSocial(network, action, target);
                 },
                 ga: function() {
-                    if(angular.isDefined($window.__gaTracker)) {
+                    if (angular.isDefined($window.__gaTracker)) {
                         $window.__gaTracker(arguments);
                     }
                 }
