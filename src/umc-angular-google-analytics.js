@@ -64,6 +64,19 @@ angular.module('umc-angular-google-analytics', [])
 		};
 		
 		this.addTracker = function(code, name) {
+			// handle special case of primary tracker
+			if (name === null || name === '') {
+				trackers[0].code = code;
+				return;
+			}
+			
+			for (var i = 1; i < trackers.length; i++) {
+				if (trackers[i].name == name) {
+					trackers[i].code = code;
+					return;
+				}
+			} 
+			
 			trackers.push({ code: code, name: name });
 		};
 		

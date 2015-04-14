@@ -8,6 +8,15 @@ describe('umc-angular-google-analytics', function(){
     beforeEach(module(function(AnalyticsProvider) {
       AnalyticsProvider.setAccount('UA-XXXXXX-xx');
     }));
+	
+   describe('handle multiple tracker codes', function() {
+	    it('should have two codes', function() {
+			  Analytics.addTracker('UA-XXXXXX-xx', 'foo');
+			inject(function(Analytics) {
+				expect(Analytics.getTrackers().length).toBe(2);
+			});
+		});
+   });
 
    describe('automatic trackPages', function() {
 
