@@ -3,16 +3,19 @@
 angular.module('umc-angular-google-analytics', [])
     .provider('Analytics', function() {
         'use strict';
-        var created = false,
-            trackRoutes = true,
-            trackPrefix = '',
-            domainName,
-            filename = 'analytics.js',
-            pageEvent = '$routeChangeSuccess',
-            trackEcommerce = false,
-            ecommerceLoaded = false;
+		
+        var created = false;
+        var trackRoutes = true;
+        var trackPrefix = '';
+        var domainName;
+		var filename = 'analytics.js';
+		var pageEvent = '$routeChangeSuccess';
+		var trackEcommerce = false;
+		var ecommerceLoaded = false;
 		var trackDisplayfeatures = false;
 		var displayfeaturesLoaded = false;
+		var trackEnhancedEcommerce = false;
+		var enhancedEcommerceLoaded = false;
 		
 		this.trackers = [];
         this._logs = [];
@@ -39,28 +42,33 @@ angular.module('umc-angular-google-analytics', [])
         };
 
         this.setDomainName = function(domain) {
-          domainName = domain;
-          return true;
+			domainName = domain;
+			return true;
         };
         
         this.setFilename = function(name) {
-          filename = name;
-          return true;
+			filename = name;
+			return true;
         };
 
         this.setPageEvent = function(name) {
-          pageEvent = name;
-          return true;
+			pageEvent = name;
+			return true;
         };
 
         this.trackEcommerce = function(doTrack) {
-          trackEcommerce = doTrack;
-          return true;
+			trackEcommerce = doTrack;
+			return true;
         };
 		
+		this.trackEnhancedEcommerce = function(doTrack) {
+			trackEnhancedEcommerce = doTrack;
+			return true;
+		};
+		
 		this.trackDisplayFeatures = function(doTrack) {
-		  trackDisplayfeatures = doTrack;
-		  return true;
+			trackDisplayfeatures = doTrack;
+			return true;
 		};
 		
 		this.addTracker = function(code, name) {
@@ -122,12 +130,18 @@ angular.module('umc-angular-google-analytics', [])
 				this._log('loadGA', 'ecommerce');
             }
 			
+			if (trackEnhancedEcommerce && !enhancedEcommerceLoaded) {
+                $window.__gaTracker('require', 'ec', 'ec.js');
+                enhancedEcommerceLoaded = true;
+				this._log('loadGA', 'ec');
+            }
+			
 			if (trackDisplayfeatures && !displayfeaturesLoaded) {
                 $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
                 displayfeaturesLoaded = true;
 				
-				for (var i = 1; i < this.trackers.length; i++) {
-					$window.__gaTracker(this.trackers[i].name + '.require', 'ecommerce', 'ecommerce.js');
+				for (var x = 1; i < this.trackers.length; x++) {
+					$window.__gaTracker(this.trackers[x].name + '.require', 'ecommerce', 'ecommerce.js');
 				}
 				
 				this._log('loadGA', 'displayfeatures');
@@ -191,8 +205,8 @@ angular.module('umc-angular-google-analytics', [])
 			  // primary
               $window.__gaTracker('send','pageview', opts);
 			  // secondary trackers
-			  for (var i = 1; i < this.trackers.length; i++) {
-				$window.__gaTracker(this.trackers[i].name + '.send','pageview', opts);
+			  for (var x = 1; x < this.trackers.length; x++) {
+				$window.__gaTracker(this.trackers[x].name + '.send','pageview', opts);
 			  }
               this._log('pageview', arguments);
           };
