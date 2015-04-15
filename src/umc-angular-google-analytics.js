@@ -125,6 +125,11 @@ angular.module('umc-angular-google-analytics', [])
 			if (trackDisplayfeatures && !displayfeaturesLoaded) {
                 $window.__gaTracker('require', 'displayfeatures', 'displayfeatures.js');
                 displayfeaturesLoaded = true;
+				
+				for (var i = 1; i < this.trackers.length; i++) {
+					$window.__gaTracker(this.trackers[i].name + '.require', 'ecommerce', 'ecommerce.js');
+				}
+				
 				this._log('loadGA', 'displayfeatures');
             }
 
