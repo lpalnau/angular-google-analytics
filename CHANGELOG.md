@@ -1,3 +1,12 @@
+<a name="0.1.8"></a>
+### 0.1.8 <2015-04-16>
+
+Allow plugin loading for each tracker.
+
+Fix track pages call for multiple trackers.
+
+Start work on enhanced ecommerce plugin support.
+
 <a name="0.1.7"></a>
 ### 0.1.7 (2015-04-14)
 
