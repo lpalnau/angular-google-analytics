@@ -6,7 +6,7 @@
   ],
   "name": "umc-angular-google-analytics",
   "description": "Easy Analytics for your AngularJS application",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "homepage": "https://github.com/laffer1/angular-google-analytics",
   "repository": {
     "type": "git",
@@ -14,9 +14,11 @@
   },
   "main": "./src/umc-angular-google-analytics.js",
   "dependencies": {
-    "angular": "~1.2.23",
-    "angular-mocks": "~1.2.23",
-    "angular-scenario": "~1.2.23"
+    "angular": "~1.2.20"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.2.20",
+    "angular-scenario": "~1.2.20"
   },
   "ignore": ""
 }

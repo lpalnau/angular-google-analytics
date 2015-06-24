@@ -16,7 +16,7 @@ A simple service that let you integrate google analytics tracker in your Angular
 ## example
 
 ```js
-var app = angular.module('app', ['angular-google-analytics'])
+var app = angular.module('app', ['umc-angular-google-analytics'])
     .config(function(AnalyticsProvider, function() {
         // initial configuration
         AnalyticsProvider.setAccount('UA-XXXXX-xx');
@@ -32,7 +32,10 @@ var app = angular.module('app', ['angular-google-analytics'])
         AnalyticsProvider.trackPrefix('my-application');
 
         // change filename to analytics.js
-        AnalyticsProvider.setFilename('analytics.js);
+        AnalyticsProvider.setFilename('analytics.js');
+		
+		// Turn on display features tracking. Use before track page call
+		AnalyticsProvider.trackDisplayFeatures(true);
     }))
     .controller('SampleController', function(Analytics) {
         // create a new pageview event
@@ -63,10 +66,13 @@ AnalyticsProvider.setAccount('UA-XXXXX-xx');
 AnalyticsProvider.trackPages(false);
 //Optional set domain (Use 'none' for testing on localhost)
 AnalyticsProvider.setDomainName('XXX');
-//Change default file from ga.js
-AnalyticsProvider.setFilename('analytics.js');
-
+//Change default file from analytics.js (universal)
+AnalyticsProvider.setFilename('ga.js');
+// Turn on display features tracking. Use before track page call
+AnalyticsProvider.trackDisplayFeatures(true);
 ```
 
 ## Licence
-As AngularJS itself, this module is released under the permissive [MIT license](http://revolunet.mit-license.org). Your contributions are always welcome.
+As AngularJS itself, this module is released under the permissive [MIT license]. Your contributions are always welcome.
+
+See the LICENSE file.

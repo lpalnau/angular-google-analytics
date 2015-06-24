@@ -7,6 +7,7 @@ describe('umc-angular-google-analytics', function(){
     beforeEach(module('umc-angular-google-analytics'));
     beforeEach(module(function(AnalyticsProvider) {
       AnalyticsProvider.setAccount('UA-XXXXXX-xx');
+      AnalyticsProvider.addTracker('UA-XXXXXX-xx', 'foo');
     }));
 
    describe('automatic trackPages', function() {
